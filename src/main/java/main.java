@@ -12,7 +12,6 @@ public class main {
 
         init(url, uniq);
         doTask(depth, maximum);
-        int i;
     }
 
     private static void doTask(int depth, int maximum) {
