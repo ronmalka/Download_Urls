@@ -12,16 +12,16 @@ public class UrlProducer {
 
     public void produce(Supplier<Task> supplier) {
         final Task task = supplier.get();
+
         if (task != null){
             task.doTask();
 
             try {
                 queue.put(task);
-                System.out.println("produce queue size " + queue.size());
-                task.saveUrls();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+
     }
 }

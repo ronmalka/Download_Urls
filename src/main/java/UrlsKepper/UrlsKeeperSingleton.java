@@ -28,21 +28,21 @@ public class UrlsKeeperSingleton {
         return INSTANCE;
     }
 
-    public static void addUrl(String url) {
+    public static boolean addUrl(String url) {
 
-        if (uniq) {
-            if(!urlsSetProduced.contains(url)) {
-                urlsSetToProduce.add(url);
-            }
+        if (url.isEmpty()){
+            System.out.println("addUrl url.isEmpty");
         }
-        else{
-            urlsSetToProduce.add(url);
-        }
+
+        if (uniq && urlsSetProduced.contains(url)) return false;
+        urlsSetToProduce.add(url);
+        urlsSetProduced.add(url);
+        return true;
     }
 
     public static String getAndRemoveUrl() {
         Iterator<String> iterator = urlsSetToProduce.iterator();
-        if (iterator.hasNext()){
+        if (iterator.hasNext()) {
             String url = iterator.next();
             iterator.remove();
             return url;
@@ -52,10 +52,10 @@ public class UrlsKeeperSingleton {
     }
 
     public static void setUniq(boolean uniq) {
-       UrlsKeeperSingleton.uniq = uniq;
+        UrlsKeeperSingleton.uniq = uniq;
     }
 
-    public static boolean isEmpty(){
+    public static boolean isEmpty() {
         return urlsSetToProduce.isEmpty();
     }
 

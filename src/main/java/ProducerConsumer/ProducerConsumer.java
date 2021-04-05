@@ -2,12 +2,7 @@ package ProducerConsumer;
 
 import UrlsKepper.UrlsKeeperSingleton;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -16,88 +11,83 @@ public class ProducerConsumer {
 
     private int maximum;
     private int depth;
+    private int tasksNumber;
 
-    private List<UrlProducer> urlProducers;
-    private List<UrlConsumer> urlConsumers;
+    private UrlProducer urlProducer;
+    private UrlConsumer urlConsumer;
     private BlockingQueue<Task> queue;
 
-    private final static UrlsKeeperSingleton urlsKeeperSingleton = UrlsKeeperSingleton.getInstance();
+    ExecutorService executorServiceProducers;
+    ExecutorService executorServiceConsumers;
 
-    public ProducerConsumer(int maximum, int depth) {
+
+    public ProducerConsumer(int maximum, int depth, int tasksNumber) {
         this.maximum = maximum;
         this.depth = depth;
+        this.tasksNumber = tasksNumber;
+
         queue = new ArrayBlockingQueue<>(maximum);
-        urlProducers = new ArrayList<>();
-        urlConsumers = new ArrayList<>();
+
+        executorServiceProducers = Executors.newFixedThreadPool(maximum);
+        executorServiceConsumers = Executors.newFixedThreadPool(maximum);
+
+        urlProducer = new UrlProducer(queue);
+        urlConsumer = new UrlConsumer(queue);
+
     }
 
-    public void createProducers(int tasksNumber) {
-        int num = Math.min(maximum, tasksNumber);
-
-        for (int i = 0; i < num; i++) {
-
-            System.out.println("producer urlProducers size " + urlProducers.size());
-            UrlProducer urlProducer = new UrlProducer(queue);
-            urlProducers.add(urlProducer);
-        }
-    }
-
-    public void createConsumer(int tasksNumber) {
-
-        int num = Math.min(maximum, tasksNumber);
-
-        for (int i = 0; i < num; i++) {
-
-            UrlConsumer urlConsumer = new UrlConsumer(queue);
-            urlConsumers.add(urlConsumer);
-        }
-    }
 
     public void startProduceConsume() {
-        startProduce();
-        startConsume();
+
+        for (int i = 0; i < tasksNumber; i++) {
+            executorServiceProducers.execute(this::startProduce);
+            executorServiceConsumers.execute(this::startConsume);
+
+            try {
+                executorServiceProducers.awaitTermination(1000, TimeUnit.MILLISECONDS);
+                executorServiceConsumers.awaitTermination(1000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+        executorServiceProducers.shutdown();
+        executorServiceConsumers.shutdown();
+
     }
 
 
     private void startProduce() {
-        for (UrlProducer urlProducer : urlProducers){
 
-            final Supplier<Task> supplier =( () -> {
-                String url;
-                synchronized (UrlsKeeperSingleton.class){
-                    url = urlsKeeperSingleton.getAndRemoveUrl();
-                }
-                if (url != null){
-                    return new Task(url);
-                }
-                return null;
-            });
-            new Thread(() -> {
-                for (int i = 0; i < urlProducers.size(); i++) {
-                    urlProducer.produce(supplier);
-                }
-            }).start();
-        }
+        final Supplier<Task> supplier = (() -> {
+            String url;
+            if (UrlsKeeperSingleton.isEmpty()){
+                System.out.println("UrlsKeeperSingleton.isEmpty");
+            }
+            url = UrlsKeeperSingleton.getAndRemoveUrl();
+            if (url.isEmpty()){
+                System.out.println("url.isEmpty");
+            }
+            if (url != null) {
+                return new Task(url, maximum, depth);
+            }
+            return null;
+        });
+
+        urlProducer.produce(supplier);
 
     }
 
     private void startConsume() {
-        for (UrlConsumer urlConsumer : urlConsumers){
-            final Consumer<Task> consumer = (task) ->{
-                if (task != null){
-                    urlConsumer.saveFile(task.getFile());
-                }
-            };
-            new Thread(() -> {
-                for (int i = 0; i < urlConsumers.size(); i++) {
-                    urlConsumer.consume(consumer);
-                }
-            }).start();
-        }
+
+        final Consumer<Task> consumer = (task) -> {
+            if (task != null) {
+                task.createAndSaveFile();
+            }
+        };
+
+        urlConsumer.consume(consumer);
+
     }
 
-    public void clear() {
-        urlProducers.clear();
-        urlConsumers.clear();
-    }
 }
