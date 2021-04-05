@@ -30,9 +30,6 @@ public class UrlsKeeperSingleton {
 
     public static boolean addUrl(String url) {
 
-        if (url.isEmpty()){
-            System.out.println("addUrl url.isEmpty");
-        }
 
         if (uniq && urlsSetProduced.contains(url)) return false;
         urlsSetToProduce.add(url);

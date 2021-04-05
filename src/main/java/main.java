@@ -7,7 +7,7 @@ public class main {
         UrlsKeeperSingleton.getInstance();
         String url = "https://www.ynetnews.com"; /*args[0];*/
         int maximum = 5; /*Integer.parseInt(args[1]);*/
-        int depth = 5; /*Integer.parseInt(args[2]);*/
+        int depth = 2; /*Integer.parseInt(args[2]);*/
         boolean uniq = true; /*Boolean.parseBoolean(args[3]);*/
 
         init(url, uniq);
@@ -18,7 +18,7 @@ public class main {
     private static void doTask(int depth, int maximum) {
         for (int i = 0; i < depth; i++) {
 
-            if(UrlsKeeperSingleton.isEmpty()) break;
+            if (UrlsKeeperSingleton.isEmpty()) break;
 
             int tasksNumber = (int) Math.pow(maximum, i);
             ProducerConsumer producerConsumer = new ProducerConsumer(maximum, i, tasksNumber);

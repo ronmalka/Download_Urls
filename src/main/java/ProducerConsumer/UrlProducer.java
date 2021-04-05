@@ -13,7 +13,7 @@ public class UrlProducer {
     public void produce(Supplier<Task> supplier) {
         final Task task = supplier.get();
 
-        if (task != null){
+        if (task != null) {
             task.doTask();
 
             try {

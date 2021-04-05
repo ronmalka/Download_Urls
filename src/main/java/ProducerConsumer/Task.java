@@ -57,46 +57,47 @@ public class Task {
 
     private void downloadContentFromUrl() {
 
-            System.out.println("start Task with url: " + url + " download content from url");
-            result = String.valueOf(doc);
+        System.out.println("start Task with url: " + url + " download content from url");
+        result = String.valueOf(doc);
 
     }
-    private boolean isValid(String url){
+
+    private boolean isValid(String url) {
         UrlValidator defaultValidator = new UrlValidator();
         return defaultValidator.isValid(url) && !url.isEmpty();
     }
 
     private void saveUrls() {
-            System.out.println("start Task with url: " + url + " save urls");
+        System.out.println("start Task with url: " + url + " save urls");
 
-            Elements links = doc.select(LINK_QUERY);
-            int insertedLinks = 0;
-            for (Element link : links) {
+        Elements links = doc.select(LINK_QUERY);
+        int insertedLinks = 0;
+        for (Element link : links) {
 
-                if (insertedLinks >= maximum) break;
+            if (insertedLinks >= maximum) break;
 
-                String newUrl = link.attr(LINK_ATTR);
-                if (isValid(newUrl) && UrlsKeeperSingleton.addUrl(newUrl) ) {
-                    System.out.println("save url " + newUrl);
-                    insertedLinks++;
-                }
+            String newUrl = link.attr(LINK_ATTR);
+            if (isValid(newUrl) && UrlsKeeperSingleton.addUrl(newUrl)) {
+                System.out.println("save url " + newUrl);
+                insertedLinks++;
             }
+        }
 
 
     }
 
     public void createAndSaveFile() {
-            System.out.println("start Task with url: " + url + " create file");
+        System.out.println("start Task with url: " + url + " create file");
 
-            String pathStr = BASE_PATH + parsePath();
+        String pathStr = BASE_PATH + parsePath();
 
-            Path path = Paths.get(pathStr);
+        Path path = Paths.get(pathStr);
 
-            try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-                writer.write(result);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            writer.write(result);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String parsePath() {

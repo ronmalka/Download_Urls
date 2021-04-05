@@ -61,13 +61,9 @@ public class ProducerConsumer {
 
         final Supplier<Task> supplier = (() -> {
             String url;
-            if (UrlsKeeperSingleton.isEmpty()){
-                System.out.println("UrlsKeeperSingleton.isEmpty");
-            }
+
             url = UrlsKeeperSingleton.getAndRemoveUrl();
-            if (url.isEmpty()){
-                System.out.println("url.isEmpty");
-            }
+
             if (url != null) {
                 return new Task(url, maximum, depth);
             }
