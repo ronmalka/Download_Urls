@@ -53,6 +53,13 @@ public class UrlsKeeperSingleton {
     }
 
     public static boolean isEmpty() {
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         return urlsSetToProduce.isEmpty();
     }
 

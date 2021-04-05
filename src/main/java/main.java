@@ -5,14 +5,13 @@ public class main {
 
     public static void main(String[] args) {
         UrlsKeeperSingleton.getInstance();
-        String url = "https://www.ynetnews.com"; /*args[0];*/
-        int maximum = 5; /*Integer.parseInt(args[1]);*/
-        int depth = 2; /*Integer.parseInt(args[2]);*/
-        boolean uniq = true; /*Boolean.parseBoolean(args[3]);*/
+        String url = args[0];
+        int maximum = Integer.parseInt(args[1]);
+        int depth = Integer.parseInt(args[2]);
+        boolean uniq = Boolean.parseBoolean(args[3]);
 
         init(url, uniq);
         doTask(depth, maximum);
-        int i;
     }
 
     private static void doTask(int depth, int maximum) {
